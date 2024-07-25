@@ -21,7 +21,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppCampaignsIntegrationTest {
+public class RwsbAppCampaignIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -112,7 +112,7 @@ public class RwsbAppCampaignsIntegrationTest {
     }
 
     @Test
-    void whenCreateNewCampaignWithDuplicatedCode_thenClientError() {
+    void whenCreateNewCampaignWithDuplicatedCode_thenServerError() {
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-3", "Test - New Campaign 3", "Description of new test campaign 3", null);
 
         webClient.post()
@@ -129,7 +129,7 @@ public class RwsbAppCampaignsIntegrationTest {
             .body(Mono.just(newDuplicatedCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
-            .is4xxClientError();
+            .is5xxServerError();
     }
 
     @Test

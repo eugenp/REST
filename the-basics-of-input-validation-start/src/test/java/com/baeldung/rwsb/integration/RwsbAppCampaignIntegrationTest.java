@@ -21,7 +21,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppCampaignsIntegrationTest {
+public class RwsbAppCampaignIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -68,7 +68,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void whenCreateNewCampaign_thenCreatedWithNoTasks() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1));
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-1", "Test - New Campaign 1", "Description of new test campaign 1", tasksBody);
 
         webClient.post()
@@ -134,7 +134,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void whenCreateNewCampaignPointingToExistingTasks_thenCreatedWithNoTasks() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(1L, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null), new TaskDto(2L, "any-uuid", null, null, null, null, null, null));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(1L, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1), new TaskDto(2L, "any-uuid", null, null, null, null, null, null, 1));
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-5", "Test - New Campaign 5", "Description of new test campaign 5", tasksBody);
 
         webClient.post()
@@ -156,7 +156,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void givenPreloadedData_whenUpdateExistingCampaign_thenOkWithSupportedFieldUpdated() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1));
         CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-UPDATED-1", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksBody);
 
         webClient.put()
@@ -198,7 +198,7 @@ public class RwsbAppCampaignsIntegrationTest {
     @Test
     void givenPreloadedData_whenUpdateExistingCampaignUsingExistingTask_thenTaskNotSwitchedToCampaign() {
         // create Task assigning it to Campaign 1
-        TaskDto newTaskBody = new TaskDto(null, null, "Test - Campaign Task X", "Description of Campaign task", LocalDate.of(2030, 01, 01), null, 1L, null);
+        TaskDto newTaskBody = new TaskDto(null, null, "Test - Campaign Task X", "Description of Campaign task", LocalDate.of(2030, 01, 01), null, 1L, null, 1);
 
         TaskDto newTask = webClient.post()
             .uri("/tasks")

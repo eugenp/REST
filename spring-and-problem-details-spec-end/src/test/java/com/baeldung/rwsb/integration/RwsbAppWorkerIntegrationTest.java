@@ -14,7 +14,7 @@ import com.baeldung.rwsb.web.dto.WorkerDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppWorkersIntegrationTest {
+public class RwsbAppWorkerIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -106,7 +106,7 @@ public class RwsbAppWorkersIntegrationTest {
             .expectStatus()
             .is4xxClientError()
             .expectBody()
-            .jsonPath("$.error")
+            .jsonPath("$.type")
             .isNotEmpty();
     }
 

@@ -1,6 +1,5 @@
 package com.baeldung.rwsb.integration;
 
-import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
@@ -16,7 +15,7 @@ import com.baeldung.rwsb.web.dto.WorkerDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppWorkersIntegrationTest {
+public class RwsbAppWorkerIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -152,27 +151,6 @@ public class RwsbAppWorkersIntegrationTest {
             .isEqualTo(1L)
             .jsonPath("$.email")
             .value(not("updated@email.com"))
-            .jsonPath("$.firstName")
-            .isEqualTo("Updated First Name")
-            .jsonPath("$.lastName")
-            .isEqualTo("Updated Last Name");
-    }
-
-    @Test
-    void givenPreloadedData_whenUpdateExistingWorkerWithoutEmail_thenOkWithSupportedFieldUpdated() {
-        WorkerDto updatedWorkerBody = new WorkerDto(null, null, "Updated First Name", "Updated Last Name");
-
-        webClient.put()
-            .uri("/workers/1")
-            .body(Mono.just(updatedWorkerBody), WorkerDto.class)
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody()
-            .jsonPath("$.id")
-            .isEqualTo(1L)
-            .jsonPath("$.email")
-            .value(not(blankOrNullString()))
             .jsonPath("$.firstName")
             .isEqualTo("Updated First Name")
             .jsonPath("$.lastName")

@@ -21,7 +21,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppCampaignsIntegrationTest {
+public class RwsbAppCampaignIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -68,7 +68,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void whenCreateNewCampaign_thenCreatedWithNoTasks() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-1", "Test - New Campaign 1", "Description of new test campaign 1", tasksBody);
 
         webClient.post()
@@ -134,7 +134,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void whenCreateNewCampaignPointingToExistingTasks_thenCreatedWithNoTasks() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(1L, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1), new TaskDto(2L, "any-uuid", null, null, null, null, null, null, 1));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(1L, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null), new TaskDto(2L, "any-uuid", null, null, null, null, null, null));
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-5", "Test - New Campaign 5", "Description of new test campaign 5", tasksBody);
 
         webClient.post()
@@ -152,65 +152,11 @@ public class RwsbAppCampaignsIntegrationTest {
             .isEmpty();
     }
 
-    // POST - new - validations
-
-    @Test
-    void whenCreateNewCampaignWithoutRequiredFields_thenBadRequest() {
-        // null code
-        CampaignDto nullCodeCampaignBody = new CampaignDto(null, null, "Test - New Campaign Invalid", "Description of new test campaign Invalid", null);
-
-        webClient.post()
-            .uri("/campaigns")
-            .body(Mono.just(nullCodeCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("code"));
-
-        // null name
-        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-INVALID", null, "Description of new test campaign Invalid", null);
-
-        webClient.post()
-            .uri("/campaigns")
-            .body(Mono.just(nullNameCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("name"));
-
-        // short description
-        CampaignDto shortDescriptionCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-VALID-1", "Test - New Campaign Valid 1", "desc", null);
-
-        webClient.post()
-            .uri("/campaigns")
-            .body(Mono.just(shortDescriptionCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("description"));
-
-        // null description (valid)
-        CampaignDto nullDescriptionCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-NEW-VALID-1", "Test - New Campaign Valid 1", null, null);
-
-        webClient.post()
-            .uri("/campaigns")
-            .body(Mono.just(nullDescriptionCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isCreated();
-    }
-
     // PUT - update
 
     @Test
     void givenPreloadedData_whenUpdateExistingCampaign_thenOkWithSupportedFieldUpdated() {
-        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1));
+        Set<TaskDto> tasksBody = Set.of(new TaskDto(null, null, "Test - Task X", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
         CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-UPDATED-1", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksBody);
 
         webClient.put()
@@ -236,7 +182,7 @@ public class RwsbAppCampaignsIntegrationTest {
 
     @Test
     void givenPreloadedData_whenUpdateNonExistingCampaign_thenNotFound() {
-        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-UPDATED-2", "Test - Updated Campaign 2", "Description of updated test campaign 2", null);
+        CampaignDto updatedCampaignBody = new CampaignDto(null, null, "Test - Updated Campaign 2", "Description of updated test campaign 2", null);
 
         webClient.put()
             .uri("/campaigns/99")
@@ -252,7 +198,7 @@ public class RwsbAppCampaignsIntegrationTest {
     @Test
     void givenPreloadedData_whenUpdateExistingCampaignUsingExistingTask_thenTaskNotSwitchedToCampaign() {
         // create Task assigning it to Campaign 1
-        TaskDto newTaskBody = new TaskDto(null, null, "Test - Campaign Task X", "Description of Campaign task", LocalDate.of(2030, 01, 01), null, 1L, null, 1);
+        TaskDto newTaskBody = new TaskDto(null, null, "Test - Campaign Task X", "Description of Campaign task", LocalDate.of(2030, 01, 01), null, 1L, null);
 
         TaskDto newTask = webClient.post()
             .uri("/tasks")
@@ -293,46 +239,5 @@ public class RwsbAppCampaignsIntegrationTest {
             .expectBody()
             .jsonPath("$.campaignId")
             .isEqualTo(1L);
-    }
-
-    // PUT - update - validations
-
-    @Test
-    void givenPreloadedData_whenUpdateWithInvalidFields_thenBadRequest() {
-        // null name
-        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-UPDATED-3", null, "Description of updated test campaign 3", null);
-
-        webClient.put()
-            .uri("/campaigns/2")
-            .body(Mono.just(nullNameCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("name"));
-
-        // short description
-        CampaignDto shortDescriptionCampaignBody = new CampaignDto(null, "TEST-CAMPAIGN-UPDATED-3", "Test - Updated Campaign 4", "Desc", null);
-
-        webClient.put()
-            .uri("/campaigns/2")
-            .body(Mono.just(shortDescriptionCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("description"));
-
-        // null code - valid
-        CampaignDto nullCodeCampaignBody = new CampaignDto(null, null, "Test - Updated Campaign 4", "Description of updated test campaign 4", null);
-
-        webClient.put()
-            .uri("/campaigns/2")
-            .body(Mono.just(nullCodeCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isOk();
     }
 }

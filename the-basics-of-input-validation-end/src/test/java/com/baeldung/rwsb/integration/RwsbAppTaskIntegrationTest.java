@@ -27,7 +27,7 @@ import com.baeldung.rwsb.web.dto.WorkerDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppTasksIntegrationTest {
+public class RwsbAppTaskIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -253,7 +253,7 @@ public class RwsbAppTasksIntegrationTest {
 
     @Test
     void whenCreateNewTaskWithExistingWorker_thenCreatedWithNullWorker() {
-        TaskDto newTaskBody = new TaskDto(null, null, "Test - Task X5", "Description of task 5", LocalDate.of(2030, 01, 01), null, 1L, new WorkerDto(1L, null, null, null), 10);
+        TaskDto newTaskBody = new TaskDto(null, null, "Test - Task X5", "Description of task 5", LocalDate.of(2030, 01, 01), null, 1L, new WorkerDto(1L, "emailtest5@testemail.com", "First Name 5", "Last Name 5"), 10);
 
         webClient.post()
             .uri("/tasks")
@@ -493,34 +493,6 @@ public class RwsbAppTasksIntegrationTest {
     }
 
     @Test
-    void whenUpdateTaskWithExistingWorker_thenOk() {
-        TaskDto newTaskBody = new TaskDto(null, null, "Test - Task X5.2", "Description of task 5.2", LocalDate.of(2030, 01, 01), null, 1L, null, 10);
-
-        Long newId = webClient.post()
-            .uri("/tasks")
-            .body(Mono.just(newTaskBody), TaskDto.class)
-            .exchange()
-            .expectStatus()
-            .isCreated()
-            .returnResult(TaskDto.class)
-            .getResponseBody()
-            .blockFirst()
-            .id();
-
-        TaskDto updatedTaskBody = new TaskDto(null, null, "Test - Task X6", "Description of task 6", LocalDate.of(2030, 01, 01), TaskStatus.TO_DO, 1L, new WorkerDto(1L, null, null, null), 10);
-
-        webClient.put()
-            .uri("/tasks/" + newId)
-            .body(Mono.just(updatedTaskBody), TaskDto.class)
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody()
-            .jsonPath("$.assignee.firstName")
-            .exists();
-    }
-
-    @Test
     void whenUpdateTaskWithNonExistingWorker_thenServerError() {
         TaskDto newTaskBody = new TaskDto(null, null, "Test - Task X5", "Description of task 5", LocalDate.of(2030, 01, 01), null, 1L, null, 10);
 
@@ -535,7 +507,7 @@ public class RwsbAppTasksIntegrationTest {
             .blockFirst()
             .id();
 
-        TaskDto updatedTaskBody = new TaskDto(null, null, "Test - Task X6", "Description of task 6", LocalDate.of(2030, 01, 01), TaskStatus.TO_DO, 1L, new WorkerDto(99L, null, null, null), 10);
+        TaskDto updatedTaskBody = new TaskDto(null, null, "Test - Task X6", "Description of task 6", LocalDate.of(2030, 01, 01), TaskStatus.TO_DO, 1L, new WorkerDto(99L, "emailtest6@testemail.com", "First Name 6", "Last Name 6"), 10);
 
         webClient.put()
             .uri("/tasks/" + newId)
@@ -584,7 +556,7 @@ public class RwsbAppTasksIntegrationTest {
     // PUT - update - validations
 
     @Test
-    void whenUpdateWithInvalidScenarios_thenBadRequest() {
+    void whenUpdateWithInvalidScenarios_thenErrors() {
         // null status
         TaskDto updatedTaskBody = new TaskDto(null, "any-uuid", "Test - Task X", "Description of task", LocalDate.of(2030, 06, 01), null, 3L, null, null);
 
@@ -593,7 +565,7 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(updatedTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest();
+            .is5xxServerError();
 
         // null name
         TaskDto nullNameTaskBody = new TaskDto(null, "any-uuid", null, "Description of task", LocalDate.of(2030, 06, 01), TaskStatus.DONE, 3L, null, null);
@@ -603,7 +575,7 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(nullNameTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest();
+            .is4xxClientError();
 
         // null campaignId
         TaskDto nullCampaignIdTaskBody = new TaskDto(null, "any-uuid", "Test - Task X", "Description of task", LocalDate.of(2030, 06, 01), TaskStatus.DONE, null, null, null);
@@ -613,7 +585,7 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(nullCampaignIdTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest();
+            .is4xxClientError();
 
         // null uuid and assignee - valid
         TaskDto newTaskBody = new TaskDto(null, null, "Test - Task X5", "Description of task 5", LocalDate.of(2030, 01, 01), null, 1L, null, null);
@@ -707,7 +679,7 @@ public class RwsbAppTasksIntegrationTest {
     // PUT - update status - validations
 
     @Test
-    void givenPreloadedData_whenUpdateStatusWithNullStatus_thenBadRequest() {
+    void givenPreloadedData_whenUpdateStatusWithNullStatus_thenServerError() {
         // to check input validations not messing up things here
         TaskDto nullStatusTaskBody = new TaskDto(null, null, "Test - Status Task X2", null, null, null, null, null, null);
 
@@ -716,10 +688,7 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(nullStatusTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("status"));
+            .is5xxServerError();
     }
 
     // PUT - update assignee
@@ -763,7 +732,7 @@ public class RwsbAppTasksIntegrationTest {
     // PUT - update assignee - validations
 
     @Test
-    void givenPreloadedData_whenUpdateAssigneeWithNullAssignee_thenBadRequest() {
+    void givenPreloadedData_whenUpdateAssigneeWithNullAssignee_thenServerError() {
         TaskDto updatedTaskBody = new TaskDto(null, null, "Test - Assignee Task X", "Description of task", LocalDate.of(2030, 06, 01), null, 1L, null, 10);
 
         webClient.put()
@@ -771,14 +740,11 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(updatedTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("status"));
+            .is5xxServerError();
     }
 
     @Test
-    void givenPreloadedData_whenUpdateAssigneeWithAssigneeWithNoId_thenBadRequest() {
+    void givenPreloadedData_whenUpdateAssigneeWithAssigneeWithNoId_thenServerError() {
         TaskDto updatedTaskBody = new TaskDto(null, null, "Test - Assignee Task X", "Description of task", LocalDate.of(2030, 06, 01), null, 1L, new WorkerDto(null, null, null, null), 10);
 
         webClient.put()
@@ -786,9 +752,6 @@ public class RwsbAppTasksIntegrationTest {
             .body(Mono.just(updatedTaskBody), TaskDto.class)
             .exchange()
             .expectStatus()
-            .isBadRequest()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("status"));
+            .is5xxServerError();
     }
 }

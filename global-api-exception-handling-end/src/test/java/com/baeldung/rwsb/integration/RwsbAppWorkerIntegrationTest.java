@@ -14,7 +14,7 @@ import com.baeldung.rwsb.web.dto.WorkerDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppWorkersIntegrationTest {
+public class RwsbAppWorkerIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -84,7 +84,7 @@ public class RwsbAppWorkersIntegrationTest {
     }
 
     @Test
-    void whenCreateNewWorkerUsingExistingEmail_thenServerError() {
+    void whenCreateNewWorkerUsingExistingEmail_thenClientError() {
         WorkerDto newWorkerBody = new WorkerDto(null, "test3@testemail.com", "Test First Name 3", "Test Last Name 3");
 
         webClient.post()
@@ -104,7 +104,7 @@ public class RwsbAppWorkersIntegrationTest {
             .body(Mono.just(newDuplicatedEmailWorkerBody), WorkerDto.class)
             .exchange()
             .expectStatus()
-            .is5xxServerError()
+            .is4xxClientError()
             .expectBody()
             .jsonPath("$.error")
             .isNotEmpty();

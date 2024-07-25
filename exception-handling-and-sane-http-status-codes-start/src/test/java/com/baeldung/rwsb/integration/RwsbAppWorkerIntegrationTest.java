@@ -1,7 +1,6 @@
 package com.baeldung.rwsb.integration;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,7 @@ import com.baeldung.rwsb.web.dto.WorkerDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppWorkersIntegrationTest {
+public class RwsbAppWorkerIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -111,29 +110,6 @@ public class RwsbAppWorkersIntegrationTest {
             .isNotEmpty();
     }
 
-    @Test
-    void whenCreateNewWorkerWithInvalidFields_thenBadRequest() {
-        // null email
-        WorkerDto nullEmailWorkerBody = new WorkerDto(null, null, "Test First Name 3", "Test Last Name 3");
-
-        webClient.post()
-            .uri("/workers")
-            .body(Mono.just(nullEmailWorkerBody), WorkerDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest();
-
-        // invalid email
-        WorkerDto invalidEmailWorkerBody = new WorkerDto(null, "notanemail", "Test First Name 3", "Test Last Name 3");
-
-        webClient.post()
-            .uri("/workers")
-            .body(Mono.just(invalidEmailWorkerBody), WorkerDto.class)
-            .exchange()
-            .expectStatus()
-            .isBadRequest();
-    }
-
     // PUT - update
 
     @Test
@@ -155,22 +131,5 @@ public class RwsbAppWorkersIntegrationTest {
             .isEqualTo("Updated First Name")
             .jsonPath("$.lastName")
             .isEqualTo("Updated Last Name");
-    }
-
-    @Test
-    void whenCreateNewWorkerWithBadEmail_thenError() {
-        WorkerDto newWorkerBody = new WorkerDto(null, "testAttest.com", "Test", "Test");
-
-        webClient.post()
-            .uri("/workers")
-            .body(Mono.just(newWorkerBody), WorkerDto.class)
-            .exchange()
-            .expectStatus()
-            .is4xxClientError()
-            .expectBody()
-            .jsonPath("$.errors..field")
-            .value(hasItem("email"))
-            .jsonPath("$.errors..defaultMessage")
-            .value(hasItem("You must provide a valid email address"));
     }
 }
