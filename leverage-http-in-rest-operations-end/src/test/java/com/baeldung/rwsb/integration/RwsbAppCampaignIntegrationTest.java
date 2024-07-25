@@ -21,7 +21,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class RwsbAppCampaignsIntegrationTest {
+public class RwsbAppCampaignIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
