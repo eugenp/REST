@@ -11,7 +11,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.baeldung.rwsb.web.dto.TaskDto;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TasksEndToEndApiTest {
+public class TaskEndToEndApiTest {
 
     @Autowired
     WebTestClient webClient;

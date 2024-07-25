@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.FileCopyUtils;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTasksApiIntegrationTest {
+public class ContractTaskApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;

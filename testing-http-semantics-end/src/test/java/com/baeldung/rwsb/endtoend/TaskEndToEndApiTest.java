@@ -14,10 +14,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.baeldung.rwsb.domain.model.TaskStatus;
 import com.baeldung.rwsb.web.dto.TaskDto;
 
-import reactor.core.publisher.Mono;
-
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TasksEndToEndApiTest {
+public class TaskEndToEndApiTest {
 
     @Autowired
     WebTestClient webClient;

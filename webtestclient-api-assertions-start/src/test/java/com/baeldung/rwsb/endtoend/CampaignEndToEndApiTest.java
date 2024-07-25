@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiTest {
+public class CampaignEndToEndApiTest {
 
     @Autowired
     WebTestClient webClient;

@@ -22,7 +22,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import com.baeldung.rwsb.web.dto.WorkerDto;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TasksSimplifiedEndToEndApiTest {
+public class TaskSimplifiedEndToEndApiTest {
 
     @Autowired
     SimpleWebTestClient webClient;

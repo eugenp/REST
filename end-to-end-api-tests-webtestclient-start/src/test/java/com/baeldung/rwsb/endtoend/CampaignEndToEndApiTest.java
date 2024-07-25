@@ -1,5 +1,5 @@
 package com.baeldung.rwsb.endtoend;
 
-public class CampaignsEndToEndApiTest {
+public class CampaignEndToEndApiTest {
 
 }

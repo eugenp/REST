@@ -25,7 +25,7 @@ import com.baeldung.rwsb.commons.contract.SimpleContractWebTestClient;
 import com.baeldung.rwsb.commons.contract.SimpleRequestBodyBuilder;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ContractCampaignsSimplifiedApiIntegrationTest {
+public class ContractCampaignSimplifiedApiIntegrationTest {
 
     @Autowired
     SimpleContractWebTestClient webClient;

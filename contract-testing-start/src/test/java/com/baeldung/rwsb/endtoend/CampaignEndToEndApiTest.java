@@ -14,7 +14,7 @@ import com.baeldung.rwsb.web.dto.CampaignDto;
 import com.baeldung.rwsb.web.dto.TaskDto;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiTest {
+public class CampaignEndToEndApiTest {
 
     @Autowired
     WebTestClient webClient;

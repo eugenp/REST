@@ -34,7 +34,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CampaignsSimplifiedEndToEndApiTest {
+public class CampaignSimplifiedEndToEndApiTest {
 
     @Autowired
     SimpleWebTestClient webClient;

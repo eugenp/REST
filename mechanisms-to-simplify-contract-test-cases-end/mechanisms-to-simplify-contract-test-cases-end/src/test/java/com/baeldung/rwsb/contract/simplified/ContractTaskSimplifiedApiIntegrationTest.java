@@ -25,7 +25,7 @@ import com.baeldung.rwsb.domain.model.TaskStatus;
 import com.baeldung.rwsb.web.dto.TaskDto;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ContractTasksSimplifiedApiIntegrationTest {
+public class ContractTaskSimplifiedApiIntegrationTest {
 
     @Autowired
     SimpleContractWebTestClient webClient;
