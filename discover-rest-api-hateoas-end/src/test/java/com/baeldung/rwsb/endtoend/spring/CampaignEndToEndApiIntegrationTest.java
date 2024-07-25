@@ -20,7 +20,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiIntegrationTest {
+public class CampaignEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -47,32 +47,11 @@ public class CampaignsEndToEndApiIntegrationTest {
             .isOk()
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo(1L);
-                assertThat(dto.code()).isNotBlank();
-                assertThat(dto.name()).isNotBlank();
-                assertThat(dto.description()).isNotBlank();
+                assertThat(dto.getId()).isEqualTo(1L);
+                assertThat(dto.getCode()).isNotBlank();
+                assertThat(dto.getName()).isNotBlank();
+                assertThat(dto.getDescription()).isNotBlank();
             });
-    }
-
-    // GET - list
-
-    @Test
-    void givenPreloadedData_whenGetCampaigns_thenResponseFieldsMatch() {
-        webClient.get()
-            .uri("/campaigns")
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBodyList(CampaignDto.class)
-            .value(campaignsList -> {
-                assertThat(campaignsList).hasSizeGreaterThanOrEqualTo(2);
-                assertThat(campaignsList).extracting(CampaignDto::code)
-                    .contains("C1", "C2", "C3");
-                assertThat(campaignsList).flatExtracting(CampaignDto::tasks)
-                    .extracting(TaskDto::name)
-                    .contains("Task 1", "Task 2", "Task 3", "Task 4");
-            });
-
     }
 
     // POST - create
@@ -89,7 +68,7 @@ public class CampaignsEndToEndApiIntegrationTest {
             .isCreated()
             .expectBody(CampaignDto.class)
             .value(resultingDto -> {
-                CampaignDto expectedResult = new CampaignDto(resultingDto.id(), newCampaignBody.code(), newCampaignBody.name(), newCampaignBody.description(), emptySet());
+                CampaignDto expectedResult = new CampaignDto(resultingDto.getId(), newCampaignBody.getCode(), newCampaignBody.getName(), newCampaignBody.getDescription(), emptySet());
                 assertThat(resultingDto).isEqualTo(expectedResult);
             });
     }
@@ -146,13 +125,13 @@ public class CampaignsEndToEndApiIntegrationTest {
             .isOk()
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo(2L);
-                assertThat(dto.code()).isNotEqualTo(updatedCampaignBody.code());
-                assertThat(dto.name()).isEqualTo(updatedCampaignBody.name());
-                assertThat(dto.description()).isEqualTo(updatedCampaignBody.description());
-                assertThat(dto.tasks()).isNotEmpty()
-                    .noneMatch(task -> task.name()
-                        .equals(taskBody.name()));
+                assertThat(dto.getId()).isEqualTo(2L);
+                assertThat(dto.getCode()).isNotEqualTo(updatedCampaignBody.getCode());
+                assertThat(dto.getName()).isEqualTo(updatedCampaignBody.getName());
+                assertThat(dto.getDescription()).isEqualTo(updatedCampaignBody.getDescription());
+                assertThat(dto.getTasks()).isNotEmpty()
+                    .noneMatch(task -> task.getName()
+                        .equals(taskBody.getName()));
             });
     }
 

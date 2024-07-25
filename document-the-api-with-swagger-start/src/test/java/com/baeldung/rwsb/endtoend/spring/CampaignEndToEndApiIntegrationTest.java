@@ -20,7 +20,7 @@ import com.baeldung.rwsb.web.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiIntegrationTest {
+public class CampaignEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
