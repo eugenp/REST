@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTestingCampaignsApiIntegrationTest {
+public class ContractTestingCampaignApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;

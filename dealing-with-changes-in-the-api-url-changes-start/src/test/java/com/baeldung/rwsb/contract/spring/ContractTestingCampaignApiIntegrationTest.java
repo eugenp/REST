@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTestingCampaignsApiIntegrationTest {
+public class ContractTestingCampaignApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -93,7 +93,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
 
         webClient.post()
             .uri("/campaigns")
-            .contentType(MediaType.parseMediaType("application/vnd.rwsb.api.v2+json"))
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(newCampaignJsonBody)
             .exchange()
             .expectStatus()
@@ -117,7 +117,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
 
         webClient.post()
             .uri("/campaigns")
-            .contentType(MediaType.parseMediaType("application/vnd.rwsb.api.v2+json"))
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(newCampaignJsonBody)
             .exchange()
             .expectStatus()
@@ -141,7 +141,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
 
         webClient.post()
             .uri("/campaigns")
-            .contentType(MediaType.parseMediaType("application/vnd.rwsb.api.v2+json"))
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(newCampaignJsonBody)
             .exchange()
             .expectStatus()

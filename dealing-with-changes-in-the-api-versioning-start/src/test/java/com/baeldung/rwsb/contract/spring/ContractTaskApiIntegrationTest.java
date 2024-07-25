@@ -21,12 +21,12 @@ import org.springframework.util.FileCopyUtils;
 import com.baeldung.rwsb.domain.model.TaskStatus;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTasksApiIntegrationTest {
+public class ContractTaskApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
 
-    @Value("classpath:task-v2.json")
+    @Value("classpath:task.json")
     Resource resource;
 
     // GET - single
@@ -55,7 +55,7 @@ public class ContractTasksApiIntegrationTest {
 
         webClient.post()
             .uri("/tasks")
-            .contentType(MediaType.parseMediaType("application/vnd.rwsb.api.v2+json"))
+            .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(taskJson)
             .exchange()
             .expectStatus()

@@ -20,7 +20,7 @@ import org.springframework.util.FileCopyUtils;
 import com.baeldung.rwsb.domain.model.TaskStatus;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTasksApiIntegrationTest {
+public class ContractTaskApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;

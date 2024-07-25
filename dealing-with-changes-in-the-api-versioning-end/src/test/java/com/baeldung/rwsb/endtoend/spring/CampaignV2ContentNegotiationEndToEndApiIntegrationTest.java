@@ -23,7 +23,7 @@ import com.baeldung.rwsb.web.v2_contentnegotiation.dto.TaskDto;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsV2ContentNegotiationEndToEndApiIntegrationTest {
+public class CampaignV2ContentNegotiationEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;

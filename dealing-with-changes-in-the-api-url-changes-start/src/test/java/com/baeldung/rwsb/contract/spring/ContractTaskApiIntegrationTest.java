@@ -3,8 +3,6 @@ package com.baeldung.rwsb.contract.spring;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasItem;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -23,39 +21,13 @@ import org.springframework.util.FileCopyUtils;
 import com.baeldung.rwsb.domain.model.TaskStatus;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTasksApiIntegrationTest {
+public class ContractTaskApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
 
     @Value("classpath:task.json")
     Resource resource;
-
-    @Test
-    void givenPreloadedData_whenGetSearchTasksUsingCampaignIdPath_thenResponseContainsLessEntries() { // @formatter:off
-        // campaign 1 id: ebcbeadc-c7de-45ec-8c45-7d23a2554cc6
-        webClient.get()
-            .uri("/campaigns/1/tasks")
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody()
-            .jsonPath("$._embedded.taskDtoList.length()")
-            //            .value(equalTo(3));
-            .value(greaterThanOrEqualTo(3));
-    } // @formatter:on
-
-    @Test
-    void givenPreloadedData_whenGetSearchTasksUsingNonExistingCampaignIdPath_thenNoneRetrieved() { // @formatter:off
-        webClient.get()
-            .uri("/campaigns/99/tasks")
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody()
-            .jsonPath("$._embedded")
-            .doesNotExist();
-    } // @formatter:on
 
     // GET - single
 
@@ -102,24 +74,5 @@ public class ContractTasksApiIntegrationTest {
     private String generateTaskInput() throws Exception {
         Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8);
         return FileCopyUtils.copyToString(reader);
-    }
-
-    // HATEOAS
-    @Test
-    void givenPreloadedData_whenSearchTasks_thenResponseWithHateoas() {
-        webClient.get()
-            .uri("/tasks?name=Task&assigneeId=1")
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody()
-            .jsonPath("$._embedded.taskDtoList.._links.assignee.href")
-            .value(hasItem(containsString("/employees/")))
-            .jsonPath("$._links.self.deprecation")
-            .isEqualTo("https://my-site/further-info-on-deprecation")
-            .jsonPath("$._links.searchTasksByCampaign.href")
-            .value(containsString("/campaigns/{campaignId}/tasks?name=Task&assigneeId=1"))
-            .jsonPath("$._links.searchTasksByCampaign.templated")
-            .isEqualTo(true);
     }
 }

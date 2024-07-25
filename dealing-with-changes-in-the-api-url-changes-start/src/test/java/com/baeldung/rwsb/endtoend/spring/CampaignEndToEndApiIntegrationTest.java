@@ -2,6 +2,7 @@ package com.baeldung.rwsb.endtoend.spring;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -14,13 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.baeldung.rwsb.domain.model.TaskStatus;
-import com.baeldung.rwsb.web.v1_contentnegotiation.dto.CampaignDto;
-import com.baeldung.rwsb.web.v1_contentnegotiation.dto.TaskDto;
+import com.baeldung.rwsb.web.dto.CampaignDto;
+import com.baeldung.rwsb.web.dto.TaskDto;
 
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiIntegrationTest {
+public class CampaignEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -29,13 +30,16 @@ public class CampaignsEndToEndApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseIsEqualToExpectedObject() {
+        CampaignDto expectedCampaignDto = new CampaignDto(3L, "C3", "Campaign 3", "About Campaign 3", Collections.emptySet());
         webClient.get()
             .uri("/campaigns/3")
             .exchange()
             .expectStatus()
             .isOk()
             .expectBody(CampaignDto.class)
-            .isEqualTo(new CampaignDto(3L, "C3", "Campaign 3", "About Campaign 3", Collections.emptySet()));
+            .consumeWith(response -> {
+                assertEquals(expectedCampaignDto, response.getResponseBody());
+            });
     }
 
     @Test
@@ -69,7 +73,7 @@ public class CampaignsEndToEndApiIntegrationTest {
                 assertThat(campaignsList).extracting(CampaignDto::code)
                     .contains("C1", "C2", "C3");
                 assertThat(campaignsList).flatExtracting(CampaignDto::tasks)
-                    .extracting(TaskDto::name)
+                    .extracting(TaskDto::getName)
                     .contains("Task 1", "Task 2", "Task 3", "Task 4");
             });
 
@@ -151,8 +155,8 @@ public class CampaignsEndToEndApiIntegrationTest {
                 assertThat(dto.name()).isEqualTo(updatedCampaignBody.name());
                 assertThat(dto.description()).isEqualTo(updatedCampaignBody.description());
                 assertThat(dto.tasks()).isNotEmpty()
-                    .noneMatch(task -> task.name()
-                        .equals(taskBody.name()));
+                    .noneMatch(task -> task.getName()
+                        .equals(taskBody.getName()));
             });
     }
 

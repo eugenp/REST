@@ -6,24 +6,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.baeldung.rwsb.domain.model.TaskStatus;
-import com.baeldung.rwsb.web.v1_contentnegotiation.dto.CampaignDto;
-import com.baeldung.rwsb.web.v1_contentnegotiation.dto.TaskDto;
+import com.baeldung.rwsb.web.dto.CampaignDto;
+import com.baeldung.rwsb.web.dto.TaskDto;
 
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
+public class CampaignEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -32,31 +30,26 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseIsEqualToExpectedObject() {
+        // Campaign 4 id: 20da99d1-2991-4777-b7b2-dcb14b08c468
         webClient.get()
-            .uri("/campaigns/3")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
+            .uri("/campaigns/20da99d1-2991-4777-b7b2-dcb14b08c468")
             .exchange()
             .expectStatus()
             .isOk()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json")
             .expectBody(CampaignDto.class)
-            .isEqualTo(new CampaignDto(3L, "C3", "Campaign 3", "About Campaign 3", Collections.emptySet()));
+            .isEqualTo(new CampaignDto("20da99d1-2991-4777-b7b2-dcb14b08c468", "C4", "Campaign 4", "About Campaign 4", Collections.emptySet()));
     }
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseContainsFields() {
         webClient.get()
-            .uri("/campaigns/1")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
+            .uri("/campaigns/ebcbeadc-c7de-45ec-8c45-7d23a2554cc6")
             .exchange()
             .expectStatus()
             .isOk()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json")
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo(1L);
+                assertThat(dto.id()).isEqualTo("ebcbeadc-c7de-45ec-8c45-7d23a2554cc6");
                 assertThat(dto.code()).isNotBlank();
                 assertThat(dto.name()).isNotBlank();
                 assertThat(dto.description()).isNotBlank();
@@ -69,12 +62,9 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
     void givenPreloadedData_whenGetCampaigns_thenResponseFieldsMatch() {
         webClient.get()
             .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .exchange()
             .expectStatus()
             .isOk()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json")
             .expectBodyList(CampaignDto.class)
             .value(campaignsList -> {
                 assertThat(campaignsList).hasSizeGreaterThanOrEqualTo(2);
@@ -91,18 +81,14 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
 
     @Test
     void whenCreateNewCampaign_thenCreatedAndResponseFieldsMatch() {
-        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-1CN", "Test - New Campaign 1CN", "Description of new test campaign 1CN", null);
+        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-1", "Test - New Campaign 1", "Description of new test campaign 1", null);
 
         webClient.post()
             .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
             .isCreated()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json")
             .expectBody(CampaignDto.class)
             .value(resultingDto -> {
                 CampaignDto expectedResult = new CampaignDto(resultingDto.id(), newCampaignBody.code(), newCampaignBody.name(), newCampaignBody.description(), emptySet());
@@ -111,41 +97,20 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
     }
 
     @Test
-    void whenCreateNewCampaignWithoutVersionContentTypeHeader_thenUnsupportedMediaType() {
-        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2CN", "Test - New Campaign 3", "Description of new test campaign 3", null);
-
-        webClient.post()
-            .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .body(Mono.just(newCampaignBody), CampaignDto.class)
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-            .expectHeader()
-            .value(HttpHeaders.ACCEPT, acceptHeader -> assertThat(acceptHeader).contains("application/vnd.rwsb.api.v1+json"));
-    }
-
-    @Test
     void whenCreateNewCampaignWithDuplicatedCode_thenBadRequest() {
-        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2CN", "Test - New Campaign 3", "Description of new test campaign 3", null);
+        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 3", "Description of new test campaign 3", null);
 
         webClient.post()
             .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
-            .isCreated()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json");
+            .isCreated();
 
-        CampaignDto newDuplicatedCodeCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2CN", "Test - New Campaign 4", "Description of new test campaign 4", null);
+        CampaignDto newDuplicatedCodeCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 4", "Description of new test campaign 4", null);
 
         webClient.post()
             .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .body(Mono.just(newDuplicatedCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -161,8 +126,6 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
 
         webClient.post()
             .uri("/campaigns")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .body(Mono.just(nullCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -173,23 +136,20 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenUpdateExistingCampaign_thenOkWithSupportedFieldUpdated() {
-        TaskDto taskBody = new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null);
-        Set<TaskDto> tasksListBody = Set.of(new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
-        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-1CN", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
+        TaskDto taskBody = new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, null);
+        Set<TaskDto> tasksListBody = Set.of(taskBody);
+        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-1", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
 
+        // Campaign 2 id: 20da99d1-2991-4777-b7b2-dcb14b08c469
         webClient.put()
-            .uri("/campaigns/2")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
+            .uri("/campaigns/20da99d1-2991-4777-b7b2-dcb14b08c469")
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
             .isOk()
-            .expectHeader()
-            .contentType("application/vnd.rwsb.api.v1+json")
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo(2L);
+                assertThat(dto.id()).isEqualTo("20da99d1-2991-4777-b7b2-dcb14b08c469");
                 assertThat(dto.code()).isNotEqualTo(updatedCampaignBody.code());
                 assertThat(dto.name()).isEqualTo(updatedCampaignBody.name());
                 assertThat(dto.description()).isEqualTo(updatedCampaignBody.description());
@@ -204,9 +164,7 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
         CampaignDto updatedCampaignBody = new CampaignDto(null, null, "Test - Updated Campaign 2", "Description of updated test campaign 2", null);
 
         webClient.put()
-            .uri("/campaigns/99")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
+            .uri("/campaigns/" + UUID.randomUUID().toString())
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -218,12 +176,10 @@ public class CampaignsV1ContentNegotiationEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenUpdateWithInvalidFields_thenBadRequest() {
         // null name
-        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-3CN", null, "Description of updated test campaign 3", null);
+        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-3", null, "Description of updated test campaign 3", null);
 
         webClient.put()
             .uri("/campaigns/2")
-            .accept(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
-            .contentType(MediaType.valueOf("application/vnd.rwsb.api.v1+json"))
             .body(Mono.just(nullNameCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()

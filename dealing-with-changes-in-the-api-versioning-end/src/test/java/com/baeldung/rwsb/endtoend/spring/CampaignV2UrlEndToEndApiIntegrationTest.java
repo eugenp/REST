@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +14,13 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.baeldung.rwsb.domain.model.TaskStatus;
-import com.baeldung.rwsb.web.dto.CampaignDto;
-import com.baeldung.rwsb.web.dto.TaskDto;
+import com.baeldung.rwsb.web.v2_url.dto.CampaignDto;
+import com.baeldung.rwsb.web.v2_url.dto.TaskDto;
 
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsEndToEndApiIntegrationTest {
+public class CampaignV2UrlEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -30,26 +29,25 @@ public class CampaignsEndToEndApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseIsEqualToExpectedObject() {
-        // Campaign 4 id: 20da99d1-2991-4777-b7b2-dcb14b08c468
         webClient.get()
-            .uri("/campaigns/20da99d1-2991-4777-b7b2-dcb14b08c468")
+            .uri("/v2/campaigns/3")
             .exchange()
             .expectStatus()
             .isOk()
             .expectBody(CampaignDto.class)
-            .isEqualTo(new CampaignDto("20da99d1-2991-4777-b7b2-dcb14b08c468", "C4", "Campaign 4", "About Campaign 4", Collections.emptySet()));
+            .isEqualTo(new CampaignDto(3L, "C3", "Campaign 3", "About Campaign 3", Collections.emptySet()));
     }
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseContainsFields() {
         webClient.get()
-            .uri("/campaigns/ebcbeadc-c7de-45ec-8c45-7d23a2554cc6")
+            .uri("/v2/campaigns/1")
             .exchange()
             .expectStatus()
             .isOk()
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo("ebcbeadc-c7de-45ec-8c45-7d23a2554cc6");
+                assertThat(dto.id()).isEqualTo(1L);
                 assertThat(dto.code()).isNotBlank();
                 assertThat(dto.name()).isNotBlank();
                 assertThat(dto.description()).isNotBlank();
@@ -61,7 +59,7 @@ public class CampaignsEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenGetCampaigns_thenResponseFieldsMatch() {
         webClient.get()
-            .uri("/campaigns")
+            .uri("/v2/campaigns")
             .exchange()
             .expectStatus()
             .isOk()
@@ -84,7 +82,7 @@ public class CampaignsEndToEndApiIntegrationTest {
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-1", "Test - New Campaign 1", "Description of new test campaign 1", null);
 
         webClient.post()
-            .uri("/campaigns")
+            .uri("/v2/campaigns")
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -101,7 +99,7 @@ public class CampaignsEndToEndApiIntegrationTest {
         CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 3", "Description of new test campaign 3", null);
 
         webClient.post()
-            .uri("/campaigns")
+            .uri("/v2/campaigns")
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -110,7 +108,7 @@ public class CampaignsEndToEndApiIntegrationTest {
         CampaignDto newDuplicatedCodeCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 4", "Description of new test campaign 4", null);
 
         webClient.post()
-            .uri("/campaigns")
+            .uri("/v2/campaigns")
             .body(Mono.just(newDuplicatedCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -125,7 +123,7 @@ public class CampaignsEndToEndApiIntegrationTest {
         CampaignDto nullCodeCampaignBody = new CampaignDto(null, null, "Test - New Campaign Invalid", "Description of new test campaign Invalid", null);
 
         webClient.post()
-            .uri("/campaigns")
+            .uri("/v2/campaigns")
             .body(Mono.just(nullCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -136,20 +134,19 @@ public class CampaignsEndToEndApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenUpdateExistingCampaign_thenOkWithSupportedFieldUpdated() {
-        TaskDto taskBody = new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, null);
-        Set<TaskDto> tasksListBody = Set.of(taskBody);
-        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-1", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
+        TaskDto taskBody = new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1);
+        Set<TaskDto> tasksListBody = Set.of(new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null, 1));
+        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-2U", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
 
-        // Campaign 2 id: 20da99d1-2991-4777-b7b2-dcb14b08c469
         webClient.put()
-            .uri("/campaigns/20da99d1-2991-4777-b7b2-dcb14b08c469")
+            .uri("/v2/campaigns/2")
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
             .isOk()
             .expectBody(CampaignDto.class)
             .value(dto -> {
-                assertThat(dto.id()).isEqualTo("20da99d1-2991-4777-b7b2-dcb14b08c469");
+                assertThat(dto.id()).isEqualTo(2L);
                 assertThat(dto.code()).isNotEqualTo(updatedCampaignBody.code());
                 assertThat(dto.name()).isEqualTo(updatedCampaignBody.name());
                 assertThat(dto.description()).isEqualTo(updatedCampaignBody.description());
@@ -164,7 +161,7 @@ public class CampaignsEndToEndApiIntegrationTest {
         CampaignDto updatedCampaignBody = new CampaignDto(null, null, "Test - Updated Campaign 2", "Description of updated test campaign 2", null);
 
         webClient.put()
-            .uri("/campaigns/" + UUID.randomUUID().toString())
+            .uri("/v2/campaigns/99")
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -176,10 +173,10 @@ public class CampaignsEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenUpdateWithInvalidFields_thenBadRequest() {
         // null name
-        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-3", null, "Description of updated test campaign 3", null);
+        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-4U", null, "Description of updated test campaign 3", null);
 
         webClient.put()
-            .uri("/campaigns/2")
+            .uri("/v2/campaigns/2")
             .body(Mono.just(nullNameCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()

@@ -14,13 +14,13 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.baeldung.rwsb.domain.model.TaskStatus;
-import com.baeldung.rwsb.web.v1_url.dto.CampaignDto;
-import com.baeldung.rwsb.web.v1_url.dto.TaskDto;
+import com.baeldung.rwsb.web.v1_contentnegotiation.dto.CampaignDto;
+import com.baeldung.rwsb.web.v1_contentnegotiation.dto.TaskDto;
 
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class CampaignsV1UrlEndToEndApiIntegrationTest {
+public class CampaignEndToEndApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -30,7 +30,7 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseIsEqualToExpectedObject() {
         webClient.get()
-            .uri("/v1/campaigns/3")
+            .uri("/campaigns/3")
             .exchange()
             .expectStatus()
             .isOk()
@@ -41,7 +41,7 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseContainsFields() {
         webClient.get()
-            .uri("/v1/campaigns/1")
+            .uri("/campaigns/1")
             .exchange()
             .expectStatus()
             .isOk()
@@ -59,7 +59,7 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenGetCampaigns_thenResponseFieldsMatch() {
         webClient.get()
-            .uri("/v1/campaigns")
+            .uri("/campaigns")
             .exchange()
             .expectStatus()
             .isOk()
@@ -79,10 +79,10 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
 
     @Test
     void whenCreateNewCampaign_thenCreatedAndResponseFieldsMatch() {
-        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-1U", "Test - New Campaign 1", "Description of new test campaign 1", null);
+        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-1", "Test - New Campaign 1", "Description of new test campaign 1", null);
 
         webClient.post()
-            .uri("/v1/campaigns")
+            .uri("/campaigns")
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -96,19 +96,19 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
 
     @Test
     void whenCreateNewCampaignWithDuplicatedCode_thenBadRequest() {
-        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2U", "Test - New Campaign 3", "Description of new test campaign 3", null);
+        CampaignDto newCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 3", "Description of new test campaign 3", null);
 
         webClient.post()
-            .uri("/v1/campaigns")
+            .uri("/campaigns")
             .body(Mono.just(newCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
             .isCreated();
 
-        CampaignDto newDuplicatedCodeCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2U", "Test - New Campaign 4", "Description of new test campaign 4", null);
+        CampaignDto newDuplicatedCodeCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-NEW-2", "Test - New Campaign 4", "Description of new test campaign 4", null);
 
         webClient.post()
-            .uri("/v1/campaigns")
+            .uri("/campaigns")
             .body(Mono.just(newDuplicatedCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -123,7 +123,7 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
         CampaignDto nullCodeCampaignBody = new CampaignDto(null, null, "Test - New Campaign Invalid", "Description of new test campaign Invalid", null);
 
         webClient.post()
-            .uri("/v1/campaigns")
+            .uri("/campaigns")
             .body(Mono.just(nullCodeCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -136,10 +136,10 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
     void givenPreloadedData_whenUpdateExistingCampaign_thenOkWithSupportedFieldUpdated() {
         TaskDto taskBody = new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null);
         Set<TaskDto> tasksListBody = Set.of(new TaskDto(null, null, "Test - Task X12", "Description of task", LocalDate.of(2030, 01, 01), TaskStatus.DONE, null, null));
-        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-1U", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
+        CampaignDto updatedCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-1", "Test - Updated Campaign 2", "Description of updated test campaign 2", tasksListBody);
 
         webClient.put()
-            .uri("/v1/campaigns/2")
+            .uri("/campaigns/2")
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -161,7 +161,7 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
         CampaignDto updatedCampaignBody = new CampaignDto(null, null, "Test - Updated Campaign 2", "Description of updated test campaign 2", null);
 
         webClient.put()
-            .uri("/v1/campaigns/99")
+            .uri("/campaigns/99")
             .body(Mono.just(updatedCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()
@@ -173,10 +173,10 @@ public class CampaignsV1UrlEndToEndApiIntegrationTest {
     @Test
     void givenPreloadedData_whenUpdateWithInvalidFields_thenBadRequest() {
         // null name
-        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-3U", null, "Description of updated test campaign 3", null);
+        CampaignDto nullNameCampaignBody = new CampaignDto(null, "TEST-E2E-CAMPAIGN-UPDATED-3", null, "Description of updated test campaign 3", null);
 
         webClient.put()
-            .uri("/v1/campaigns/2")
+            .uri("/campaigns/2")
             .body(Mono.just(nullNameCampaignBody), CampaignDto.class)
             .exchange()
             .expectStatus()

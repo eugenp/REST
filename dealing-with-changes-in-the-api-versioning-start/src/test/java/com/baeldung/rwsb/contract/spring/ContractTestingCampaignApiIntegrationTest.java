@@ -1,15 +1,14 @@
 package com.baeldung.rwsb.contract.spring;
 
-import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ContractTestingCampaignsApiIntegrationTest {
+public class ContractTestingCampaignApiIntegrationTest {
 
     @Autowired
     WebTestClient webClient;
@@ -41,15 +40,14 @@ public class ContractTestingCampaignsApiIntegrationTest {
 
     @Test
     void givenPreloadedData_whenGetSingleCampaign_thenResponseContainsFields() {
-        // Campaign 1 id: ebcbeadc-c7de-45ec-8c45-7d23a2554cc6
         webClient.get()
-            .uri("/campaigns/ebcbeadc-c7de-45ec-8c45-7d23a2554cc6")
+            .uri("/campaigns/1")
             .exchange()
             .expectStatus()
             .isOk()
             .expectBody()
             .jsonPath("$.id")
-            .isEqualTo("ebcbeadc-c7de-45ec-8c45-7d23a2554cc6")
+            .value(equalTo(1L), Long.class)
             .jsonPath("$.name")
             .exists()
             .jsonPath("$.tasks..name")
@@ -77,8 +75,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
     @Test
     void givenPreloadedData_whenGetNonExistingCampaignCampaign_then404ResponseWithErrorFields() {
         webClient.get()
-            .uri("/campaigns/" + UUID.randomUUID()
-                .toString())
+            .uri("/campaigns/99")
             .exchange()
             .expectStatus()
             .isNotFound()
@@ -103,7 +100,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
             .isCreated()
             .expectBody()
             .jsonPath("$.id")
-            .value(not(blankOrNullString()))
+            .value(greaterThan(3))
             .jsonPath("$.code")
             .isEqualTo("TEST-C-CAMPAIGN-NEW-JSON-1")
             .jsonPath("$.name")
@@ -127,7 +124,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
             .isCreated()
             .expectBody()
             .jsonPath("$.id")
-            .value(not(blankOrNullString()))
+            .value(greaterThan(3))
             .jsonPath("$.code")
             .isEqualTo("TEST-CAMPAIGN-NEW-STATIC-JSON-2")
             .jsonPath("$.name")
@@ -151,7 +148,7 @@ public class ContractTestingCampaignsApiIntegrationTest {
             .isCreated()
             .expectBody()
             .jsonPath("$.id")
-            .value(not(blankOrNullString()))
+            .value(greaterThan(3))
             .jsonPath("$.code")
             .isEqualTo("TEST-C-CAMPAIGN-NEW-JSON-3")
             .jsonPath("$.name")
